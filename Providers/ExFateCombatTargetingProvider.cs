@@ -53,11 +53,6 @@
 				return false;
 			}
 
-			if (ExFateBot.FateData != null && battleCharacter.FateId != ExFateBot.FateData.Id)
-			{
-				return false;
-			}
-
 			if (this.IgnoreNpcIds.Contains(battleCharacter.NpcId))
 			{
 				return false;
@@ -83,6 +78,11 @@
 				return false;
 			}
 
+			if (ExFateBot.FateData != null && battleCharacter.FateId != ExFateBot.FateData.Id)
+			{
+				return false;
+			}
+
 			if ((ExFateBot.FateData == null || !ExFateBot.FateData.IsValid) && ExFateBotSettings.Instance.IdleAction != FateIdleActions.Grind)
 			{
 				return false;
@@ -100,19 +100,29 @@
 				weight += 150;
 			}
 
+			if (battleCharacter.HasTarget && battleCharacter.CurrentTargetId == Core.Player.ObjectId)
+			{
+				weight += 50;
+			}
+
+			if (ExFateBot.FateData != null && battleCharacter.FateId == ExFateBot.FateData.Id)
+			{
+				weight += 210;
+			}
+
 			if (this.attackers.Contains(battleCharacter))
 			{
-				weight = weight + 110;
+				weight += 110;
 			}
 
 			if (battleCharacter.CurrentTargetId == Core.Player.ObjectId)
 			{
-				weight = weight + (100f - battleCharacter.CurrentHealthPercent);
+				weight += (100f - battleCharacter.CurrentHealthPercent);
 			}
 
 			if (!battleCharacter.InCombat)
 			{
-				weight = weight - 130;
+				weight += 130;
 			}
 
 			return weight;

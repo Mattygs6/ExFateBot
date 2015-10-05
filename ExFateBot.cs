@@ -1,6 +1,7 @@
 ﻿namespace ff14bot.BotBases
 {
 	using System;
+	using System.Diagnostics;
 	using System.Linq;
 	using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@
 	{
 		private static readonly DefaultFateScoreProvider FateScoreProvider = new DefaultFateScoreProvider();
 
-		public static readonly WaitTimer Fatetimer;
+		public static readonly Stopwatch FateTimer = new Stopwatch();
 
 		internal static FateData FateData;
 
@@ -40,13 +41,10 @@
 				FateIconType.ProtectNPC
 			};
 
-		private readonly WaitTimer waitTimer = WaitTimer.ThirtySeconds;
-
 		private Composite composite;
 
 		static ExFateBot()
 		{
-			Fatetimer = new WaitTimer(new TimeSpan(0, 0, 0, 3, 0));
 		}
 
 		public string Description
@@ -175,14 +173,14 @@
 							{
 								return true;
 							}
-							return FateData.Location.Distance2D(Core.Player.Location) <= 5f;
+							return FateData.Location.Distance2D(Core.Player.Location) <= FateData.HotSpot.Radius * 0.9;
 						},
 					new Action(obj => shouldMoveIntoFate = false));
 				composite0[3] = new Decorator(
 					obj => shouldMoveIntoFate,
 					CommonBehaviors.MoveAndStop(
 						obj => FateData.Location,
-						5f,
+						FateData != null ? FateData.HotSpot.Radius * 0.8f : 5f,
 						true,
 						"Moving back into fate radius"));
 				composite0[4] = new Decorator(
@@ -396,6 +394,18 @@
 
 		private async Task<bool> ResolveFate()
 		{
+			if (!FateTimer.IsRunning)
+			{
+				FateTimer.Restart();
+			}
+
+			if (FateTimer.ElapsedMilliseconds < 3000)
+			{
+				return false;
+			}
+
+			FateTimer.Restart();
+
 			var fate = FateScoreProvider.GetObjectsByWeight().FirstOrDefault(ShouldSelectFate);
 			if (fate == null)
 			{
