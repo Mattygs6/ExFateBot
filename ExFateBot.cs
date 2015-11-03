@@ -17,6 +17,7 @@
 	using ff14bot.Objects;
 	using ff14bot.RemoteWindows;
 	using ff14bot.Settings;
+	using ff14bot.Windows.FateBotSettingsWindow;
 
 	using TreeSharp;
 
@@ -24,7 +25,7 @@
 
 	public class ExFateBot : BotBase
 	{
-		private ExFateBotSettingsWindow settingsWindow;
+		private FateBotSettingsWindow settingsWindow;
 		private static readonly DefaultFateScoreProvider FateScoreProvider = new DefaultFateScoreProvider();
 
 		public static readonly Stopwatch FateTimer = new Stopwatch();
@@ -255,11 +256,11 @@
 
 		public override void OnButtonPress()
 		{
-			////if (this.settingsWindow == null || !this.settingsWindow.IsLoaded)
-			////{
-			////	this.settingsWindow = new ExFateBotSettingsWindow();
-			////}
-			////this.settingsWindow.Show();
+			if (this.settingsWindow == null || !this.settingsWindow.IsLoaded)
+			{
+				this.settingsWindow = new FateBotSettingsWindow();
+			}
+			this.settingsWindow.Show();
 		}
 
 		public new void Pulse() { }
