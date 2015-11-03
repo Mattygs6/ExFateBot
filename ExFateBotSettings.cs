@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.BotBases
+﻿namespace ExFateBot
 {
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
@@ -8,6 +8,7 @@
 
 	using Clio.Utilities;
 
+	using ff14bot.BotBases;
 	using ff14bot.Helpers;
 	using ff14bot.Settings;
 
@@ -27,7 +28,7 @@
 
 		private bool escortEnabled;
 
-		private FateIdleActions fateIdleAction;
+		private FateIdleAction fateIdleAction;
 
 		private bool levelCheck;
 
@@ -105,9 +106,9 @@
 			}
 		}
 
-		[DefaultValue(FateIdleActions.ReturnToAetheryte)]
+		[DefaultValue(FateIdleAction.ReturnToAetheryte)]
 		[Setting]
-		public FateIdleActions IdleAction
+		public FateIdleAction IdleAction
 		{
 			get
 			{

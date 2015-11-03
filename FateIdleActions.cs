@@ -1,10 +1,10 @@
-﻿namespace ExBuddy.BotBases
+﻿namespace ExFateBot
 {
-	public enum FateIdleActions
-	{
-		Nothing,
-		ReturnToAetheryte,
-		ReturnToSpecifiedLocation,
-		Grind
-	}
+    ////public enum FateIdleActions
+    ////{
+    ////    Nothing,
+    ////    ReturnToAetheryte,
+    ////    ReturnToSpecifiedLocation,
+    ////    Grind
+    ////}
 }

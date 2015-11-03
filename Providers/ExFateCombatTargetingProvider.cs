@@ -1,12 +1,9 @@
-﻿namespace ExBuddy.Providers
+﻿namespace ExFateBot
 {
 	using System.Collections.Generic;
 	using System.Linq;
 
-	using ExBuddy.BotBases;
-
 	using ff14bot;
-	using ff14bot.BotBases;
 	using ff14bot.Helpers;
 	using ff14bot.Managers;
 	using ff14bot.NeoProfiles;
@@ -83,7 +80,7 @@
 				return false;
 			}
 
-			if ((ExFateBot.FateData == null || !ExFateBot.FateData.IsValid) && ExFateBotSettings.Instance.IdleAction != FateIdleActions.Grind)
+			if ((ExFateBot.FateData == null || !ExFateBot.FateData.IsValid))
 			{
 				return false;
 			}

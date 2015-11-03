@@ -1,18 +1,15 @@
-﻿namespace ff14bot.BotBases
+﻿namespace ExFateBot
 {
-	using System;
 	using System.Diagnostics;
 	using System.Linq;
 	using System.Threading.Tasks;
 
 	using Clio.Utilities;
-	using Clio.Utilities.Helpers;
 
-	using ExBuddy.BotBases;
-	using ExBuddy.Providers;
-
+	using ff14bot;
 	using ff14bot.AClasses;
 	using ff14bot.Behavior;
+	using ff14bot.BotBases;
 	using ff14bot.Enums;
 	using ff14bot.Helpers;
 	using ff14bot.Managers;
@@ -27,6 +24,7 @@
 
 	public class ExFateBot : BotBase
 	{
+		private ExFateBotSettingsWindow settingsWindow;
 		private static readonly DefaultFateScoreProvider FateScoreProvider = new DefaultFateScoreProvider();
 
 		public static readonly Stopwatch FateTimer = new Stopwatch();
@@ -144,37 +142,37 @@
 				Composite[] composite0 = { null, null, null, null, null, null };
 				composite0[0] = new Decorator(
 					obj =>
+					{
+						if (FateData == null)
 						{
-							if (FateData == null)
-							{
-								return false;
-							}
-							return !FateData.IsValid;
-						},
+							return false;
+						}
+						return !FateData.IsValid;
+					},
 					new Action(obj => FateData = null));
 				composite0[1] = new Decorator(
 					obj =>
+					{
+						if (!this.Withinfate || FateData == null)
 						{
-							if (!this.Withinfate || FateData == null)
-							{
-								return false;
-							}
-							return Core.Player.ClassLevel > FateData.MaxLevel;
-						},
+							return false;
+						}
+						return Core.Player.ClassLevel > FateData.MaxLevel;
+					},
 					new Action(obj => ToDoList.LevelSync()));
 				composite0[2] = new Decorator(
 					obj =>
+					{
+						if (!shouldMoveIntoFate)
 						{
-							if (!shouldMoveIntoFate)
-							{
-								return false;
-							}
-							if (FateData == null || !FateData.IsValid || FateData.Status == FateStatus.COMPLETE)
-							{
-								return true;
-							}
-							return FateData.Location.Distance2D(Core.Player.Location) <= FateData.HotSpot.Radius * 0.9;
-						},
+							return false;
+						}
+						if (FateData == null || !FateData.IsValid || FateData.Status == FateStatus.COMPLETE)
+						{
+							return true;
+						}
+						return FateData.Location.Distance2D(Core.Player.Location) <= FateData.HotSpot.Radius * 0.9;
+					},
 					new Action(obj => shouldMoveIntoFate = false));
 				composite0[3] = new Decorator(
 					obj => shouldMoveIntoFate,
@@ -185,17 +183,17 @@
 						"Moving back into fate radius"));
 				composite0[4] = new Decorator(
 					obj =>
+					{
+						var bc = obj as BattleCharacter;
+						if (Poi.Current.Type != PoiType.Kill || bc == null || !bc.IsValid
+							|| !bc.IsFate || !bc.IsAlive || bc.CanAttack
+							|| this.Withinfate || FateData == null || !FateData.IsValid)
 						{
-							var bc = obj as BattleCharacter;
-							if (Poi.Current.Type != PoiType.Kill || bc == null || !bc.IsValid
-								|| !bc.IsFate || !bc.IsAlive || bc.CanAttack
-								|| this.Withinfate || FateData == null || !FateData.IsValid)
-							{
-								return false;
-							}
+							return false;
+						}
 
-							return !bc.IsFateGone;
-						},
+						return !bc.IsFateGone;
+					},
 					new Action(obj => shouldMoveIntoFate = true));
 				return new PrioritySelector(unit, composite0);
 			}
@@ -245,19 +243,26 @@
 								{
 									return false;
 								}
-								return ExFateBotSettings.Instance.IdleAction != FateIdleActions.Nothing;
+								return FatebotSettings.Instance.IdleAction != FateIdleAction.Nothing;
 							},
 							new ActionRunCoroutine(obj => HandleFateIdleAction()))));
 			}
 		}
 
-		public new void Dispose() {}
+		public new void Dispose() { }
 
-		public override void Initialize() {}
+		public override void Initialize() { }
 
-		public override void OnButtonPress() {}
+		public override void OnButtonPress()
+		{
+			////if (this.settingsWindow == null || !this.settingsWindow.IsLoaded)
+			////{
+			////	this.settingsWindow = new ExFateBotSettingsWindow();
+			////}
+			////this.settingsWindow.Show();
+		}
 
-		public new void Pulse() {}
+		public new void Pulse() { }
 
 		public static void SetFate(FateData fate)
 		{
@@ -273,7 +278,7 @@
 			GameSettingsManager.FlightMode = true;
 			TreeHooks.Instance.ClearAll();
 			this.composite = BrainBehavior.CreateBrain();
-			CharacterSettings.Instance.AutoEquip = ExFateBotSettings.Instance.UseAutoEquip;
+			CharacterSettings.Instance.AutoEquip = FatebotSettings.Instance.UseAutoEquip;
 			TreeHooks.Instance.ReplaceHook("SelectPoiType", this.SelectPoiType());
 			TreeHooks.Instance.AddHook("PoiAction", this.SetFatePoi());
 			TreeHooks.Instance.AddHook("PoiAction2", this.SetRestPoi());
@@ -420,7 +425,7 @@
 		{
 			if (Blacklist.Contains(fatedata.Id, BlacklistFlags.Node))
 			{
-				if (ExFateBotSettings.Instance.VerboseLogging)
+				if (FatebotSettings.Instance.VerboseLogging)
 				{
 					Logging.WriteVerbose(
 						"{0} - Blacklist.Contains(fate.Id, BlacklistFlags.Node) - We couldn't find a path most likely",
@@ -430,11 +435,11 @@
 				return false;
 			}
 
-			var instance = ExFateBotSettings.Instance;
+			var instance = FatebotSettings.Instance;
 			if (instance.LevelCheck
 				&& (fatedata.Level < instance.MinLevel || Core.Player.ClassLevel + instance.MaxLevel < fatedata.Level))
 			{
-				if (ExFateBotSettings.Instance.VerboseLogging)
+				if (FatebotSettings.Instance.VerboseLogging)
 				{
 					object[] name = { fatedata.Name, null };
 					name[1] = (fatedata.Level < instance.MinLevel
@@ -449,7 +454,7 @@
 			var icon = fatedata.Icon;
 			if (!this.fateIconType.Contains(icon))
 			{
-				if (ExFateBotSettings.Instance.VerboseLogging)
+				if (FatebotSettings.Instance.VerboseLogging)
 				{
 					object[] objArray = { fatedata.Name, fatedata.Icon };
 					Logging.WriteVerbose("{0} - {1} - !_goodFates.Contains(fateIconType)", objArray);
@@ -460,7 +465,7 @@
 
 			if (instance.BlackListedFates.Contains(fatedata.Name))
 			{
-				if (ExFateBotSettings.Instance.VerboseLogging)
+				if (FatebotSettings.Instance.VerboseLogging)
 				{
 					Logging.WriteVerbose("{0} - settings.BlackListedFates.Contains(fate.Name)", fatedata.Name);
 				}
@@ -475,14 +480,14 @@
 					return false;
 				}
 
-				if (ExFateBotSettings.Instance.IgnorePercentageFates.Contains(fatedata.Id))
+				if (FatebotSettings.Instance.IgnorePercentageFates.Contains(fatedata.Id))
 				{
 					return true;
 				}
 
 				if (fatedata.Progress < instance.BossPercentRequired)
 				{
-					if (ExFateBotSettings.Instance.VerboseLogging)
+					if (FatebotSettings.Instance.VerboseLogging)
 					{
 						Logging.WriteVerbose("{0} - fate.Progress < settings.BossPercentRequired", fatedata.Name);
 					}
@@ -501,7 +506,7 @@
 				return true;
 			}
 
-			if (ExFateBotSettings.Instance.VerboseLogging)
+			if (FatebotSettings.Instance.VerboseLogging)
 			{
 				Logging.WriteVerbose("{0} - fateIconType == FateIconType.Battle && !settings.MonsterSlayingEnabled", fatedata.Name);
 			}

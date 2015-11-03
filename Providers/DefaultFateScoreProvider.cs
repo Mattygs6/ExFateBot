@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.Providers
+﻿namespace ExFateBot
 {
 	using System;
 	using System.Collections.Generic;
