@@ -18,9 +18,9 @@
 			{FateIconType.ProtectNPC2, 1.5f}
 		};
 
-		public IList<FateData> GetObjectsByWeight()
+		public IList<FateData> GetObjectsByWeight(IEnumerable<FateData> fates)
 		{
-			var fateData = FateManager.ActiveFates.OrderByDescending(GetWeight).ToList();
+			var fateData = fates.OrderByDescending(GetWeight).ToList();
 
 			return fateData;
 		}

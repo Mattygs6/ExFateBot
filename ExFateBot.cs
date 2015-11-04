@@ -1,5 +1,6 @@
 ﻿namespace ExFateBot
 {
+	using System;
 	using System.Diagnostics;
 	using System.Linq;
 	using System.Threading.Tasks;
@@ -412,7 +413,24 @@
 
 			FateTimer.Restart();
 
-			var fate = FateScoreProvider.GetObjectsByWeight().FirstOrDefault(ShouldSelectFate);
+			FateData fate;
+			var singleFate = FatebotSettings.Instance.ThisFateOnly;
+			if (!string.IsNullOrWhiteSpace(singleFate))
+			{
+				fate =
+					FateManager.ActiveFates.FirstOrDefault(
+						f => string.Equals(f.Name, singleFate, StringComparison.InvariantCultureIgnoreCase));
+
+				if (fate == null)
+				{
+					return false;
+				}
+
+				FateData = fate;
+				return true;
+			}
+
+			fate = FateScoreProvider.GetObjectsByWeight(FateManager.ActiveFates).FirstOrDefault(ShouldSelectFate);
 			if (fate == null)
 			{
 				return false;
