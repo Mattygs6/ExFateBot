@@ -96,6 +96,11 @@
 
 		private bool IsOutOfRangeOfLevelSyncedFate(BattleCharacter battleCharacter)
 		{
+			if (ExFateBot.FateData == null)
+			{
+				return false;
+			}
+
 			// return true if distance from middle of fate to enemy is greater than
 			var isOutOfRange = ExFateBot.FateData.Location.Distance(battleCharacter.Location) 
 			> (ExFateBot.FateData.Radius * 0.8f) // 80% of the fate radius plus
