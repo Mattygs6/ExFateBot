@@ -345,7 +345,7 @@
 							return FateData == null;
 						},
 						new Action(obj => Poi.Clear("Fate is no longer valid"))),
-					new Decorator(obj => !this.Withinfate, CommonBehaviors.CreateMountBehavior()),
+					new Decorator(obj => !Core.Player.IsMounted && !this.Withinfate, CommonBehaviors.CreateMountBehavior()),
 					new Decorator(
 						obj =>
 						{
